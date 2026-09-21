@@ -68,40 +68,6 @@
             font-size: 0.9rem;
         }
 
-        /* 新增：下拉框 + 复制按钮的横向布局 */
-        .select-with-copy {
-            display: flex;
-            gap: 8px;
-            align-items: stretch;
-        }
-        .select-with-copy select {
-            flex: 1;
-        }
-        .copy-dest-btn {
-            flex-shrink: 0;
-            width: 48px;
-            background: #333;
-            border: 1px solid var(--border);
-            color: var(--highlight);
-            font-size: 1.1rem;
-            cursor: pointer;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .copy-dest-btn:hover {
-            background: #444;
-        }
-        .copy-dest-btn:active {
-            background: #555;
-        }
-        .copy-dest-btn.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
         select, input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -257,27 +223,23 @@
 
     <div class="form-group">
         <label for="routeSelect">选择路线 (目的地)</label>
-        <!-- 修改：下拉框 + 复制按钮 -->
-        <div class="select-with-copy">
-            <select id="routeSelect" onchange="calculate()">
-                <option value="" disabled selected>-- 请选择运输路线 --</option>
-                <optgroup label="上行 (00 -> 吉他)">
-                    <option value="up">4F9Y-3 -> 吉他</option>
-                    <option value="up">MTO2-2 -> 吉他</option>
-                    <option value="up">PF-QHK -> 吉他</option>
-                </optgroup>
-                <optgroup label="下行 (吉他 -> 00)">
-                    <option value="down" selected>吉他 -> 4F9Y-3</option>
-                    <option value="down">吉他 -> MTO2-2</option>
-                    <option value="down">吉他 -> PF-QHK</option>
-                </optgroup>
-                <optgroup label="深空 (00 -> 00)">
-                    <option value="down_deep">MTO2-2 -> 4F9Y-3</option>
-                    <option value="down_deep">PF-QHK -> MTO2-2</option>
-                </optgroup>
-            </select>
-            <button class="copy-dest-btn disabled" id="copyDestBtn" onclick="copyDestination()" title="复制目的地">📋</button>
-        </div>
+        <select id="routeSelect" onchange="calculate()">
+            <option value="" disabled>-- 请选择运输路线 --</option>
+            <optgroup label="上行 (00 -> 吉他)">
+                <option value="up">4F9Y-3 -> 吉他</option>
+                <option value="up">MTO2-2 -> 吉他</option>
+                <option value="up">PF-QHK -> 吉他</option>
+            </optgroup>
+            <optgroup label="下行 (吉他 -> 00)">
+                <option value="down" selected>吉他 -> 4F9Y-3</option>
+                <option value="down">吉他 -> MTO2-2</option>
+                <option value="down">吉他 -> PF-QHK</option>
+            </optgroup>
+            <optgroup label="深空 (00 -> 00)">
+                <option value="down_deep">MTO2-2 -> 4F9Y-3</option>
+                <option value="down_deep">PF-QHK -> MTO2-2</option>
+            </optgroup>
+        </select>
     </div>
 
     <div class="form-group">
@@ -324,8 +286,7 @@
     <div class="tips">
         💡 提示：建议将合同时间设置为 <strong>28天</strong> 以确保安全送达。<br>
         💡 只有当物品价值较高时，才建议填写保证金。<br>
-        💡 点击任意金额数字即可一键复制。<br>
-        💡 路线右侧的 📋 按钮可一键复制目的地文本。
+        💡 点击任意金额数字即可一键复制。
     </div>
 
     <div class="company-copy" onclick="copyTextFromStr('Mandatory Collateral')">
@@ -376,20 +337,10 @@
     }
 
     function calculate() {
-        const routeSelect = document.getElementById('routeSelect');
-        const routeType = routeSelect.value;
+        const routeType = document.getElementById('routeSelect').value;
         const volume = parseNumber(document.getElementById('volumeInput').value);
         const hasCollateral = document.getElementById('collateralCheck').checked;
         const collateralAmount = parseNumber(document.getElementById('collateralValue').value);
-
-        // 更新复制按钮状态
-        const copyBtn = document.getElementById('copyDestBtn');
-        const selectedOption = routeSelect.options[routeSelect.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-            copyBtn.classList.remove('disabled');
-        } else {
-            copyBtn.classList.add('disabled');
-        }
 
         const volWarning = document.getElementById('volWarning');
         let isOverLimit = false;
@@ -426,17 +377,6 @@
 
         document.getElementById('basePriceDisplay').innerText = formatNumber(basePrice);
         document.getElementById('totalPriceDisplay').innerText = formatNumber(total);
-    }
-
-    // 新增：复制目的地文本
-    function copyDestination() {
-        const routeSelect = document.getElementById('routeSelect');
-        const selectedOption = routeSelect.options[routeSelect.selectedIndex];
-        if (!selectedOption || !selectedOption.value) {
-            return;
-        }
-        const text = selectedOption.text;  // 例如 "4F9Y-3 -> 吉他"
-        copyTextFromStr(text);
     }
 
     function copyText(elementId) {

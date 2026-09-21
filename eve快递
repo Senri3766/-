@@ -1,1 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVE 快递计价器 - Mandatory Collateral</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #222222;
+            --text-color: #e0e0e0;
+            --highlight: #f0ad4e;
+            --border: #444;
+            --danger: #d9534f;
+            --success: #5cb85c;
+        }
 
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(30, 30, 30, 0.95);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--highlight);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .warning-box {
+            background-color: rgba(217, 83, 79, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .warning-box p { margin: 5px 0; }
+        .text-danger { color: var(--danger); font-weight: bold; }
+        .text-info { color: #5bc0de; }
+
+        .form-group { margin-bottom: 15px; }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #111;
+            border: 1px solid var(--border);
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--highlight);
+        }
+
+        .collateral-section {
+            background-color: #222;
+            padding: 10px;
+            border: 1px dashed #555;
+            margin-top: 10px;
+        }
+        
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .result-panel {
+            background-color: #222;
+            border-top: 2px solid var(--highlight);
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .total-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--highlight);
+        }
+
+        /* 点击复制样式 */
+        .click-to-copy {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.2s;
+            user-select: all;
+        }
+        .click-to-copy:hover {
+            background-color: rgba(240, 173, 78, 0.2);
+        }
+        .click-to-copy:active {
+            background-color: rgba(240, 173, 78, 0.4);
+        }
+
+        /* 输入结束后的复制提示 */
+        .copy-hint-inline {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--highlight);
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+            user-select: none;
+        }
+        .copy-hint-inline.show {
+            opacity: 1;
+        }
+        .copy-hint-inline:hover {
+            text-decoration: underline;
+        }
+
+        .tips {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #888;
+            font-style: italic;
+        }
+
+        .company-copy {
+            margin-top: 30px;
+            text-align: center;
+            padding: 15px;
+            background: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .company-copy:hover { background: #444; }
+        .company-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 1px;
+        }
+        .copy-hint {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        #toastMsg {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div id="toastMsg">已复制到剪贴板！</div>
+
+<div class="container">
+    <h1>合同创建 (快递)</h1>
+
+    <!-- 警示与规则 -->
+    <div class="warning-box">
+        <p><span class="text-danger">⚠ 体积限制警告：</span></p>
+        <p>上行 (00 -> 吉他) 最大：<span class="text-info">62,500.00 m³</span></p>
+        <p>下行 (吉他 -> 00) 最大：<span class="text-info">375,000.00 m³</span></p>
+        <p style="margin-top:5px; border-top:1px solid #444; padding-top:5px;">
+            单价：<span class="text-info">1,200.00 ISK/m³</span> | 
+            保险金：上行 1.00% / 下行 0.50%
+        </p>
+        <p style="margin-top:8px; border-top:1px solid #444; padding-top:8px;">
+            <span class="text-danger">⚠ 严禁在合同中加入集装箱！</span><br>
+            <span style="color:#ccc; font-size:0.85rem;">
+                集装箱会导致无法正常递送，造成快递丢失，后果自负！
+            </span>
+        </p>
+    </div>
+
+    <!-- 路线选择 -->
+    <div class="form-group">
+        <label for="routeSelect">选择路线 (目的地)</label>
+        <select id="routeSelect" onchange="calculate()">
+            <option value="" disabled>-- 请选择运输路线 --</option>
+            <optgroup label="上行 (00 -> 吉他)">
+                <option value="up">4F9Y-3 -> 吉他</option>
+                <option value="up">MTO2-2 -> 吉他</option>
+                <option value="up">PF-QHK -> 吉他</option>
+            </optgroup>
+            <optgroup label="下行 (吉他 -> 00)">
+                <option value="down" selected>吉他 -> 4F9Y-3</option>
+                <option value="down">吉他 -> MTO2-2</option>
+                <option value="down">吉他 -> PF-QHK</option>
+            </optgroup>
+            <optgroup label="深空 (00 -> 00)">
+                <option value="down_deep">MTO2-2 -> 4F9Y-3</option>
+                <option value="down_deep">PF-QHK -> MTO2-2</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <!-- 体积输入 -->
+    <div class="form-group">
+        <label for="volumeInput">货物体积 (m³)</label>
+        <input type="text" id="volumeInput" placeholder="请输入总体积..." inputmode="decimal" autocomplete="off">
+        <div id="volWarning" style="color: var(--danger); font-size: 0.8rem; margin-top: 5px; display: none;">
+            ⚠ 警告：超出该方向最大运载限制！
+        </div>
+    </div>
+
+    <!-- 保证金设置 -->
+    <div class="collateral-section">
+        <label class="checkbox-wrapper">
+            <input type="checkbox" id="collateralCheck" onchange="toggleCollateral()">
+            <span>添加保证金 (Collateral)</span>
+        </label>
+        
+        <div id="collateralInputGroup" style="display: none;">
+            <label for="collateralValue">保证金金额 (ISK)</label>
+            <input type="text" id="collateralValue" placeholder="填写物品当前市场价值" inputmode="decimal" autocomplete="off">
+            <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                * 建议填写物品当前市场价值
+            </div>
+        </div>
+    </div>
+
+    <!-- 计算结果 -->
+    <div class="result-panel">
+        <div class="result-row">
+            <span>基础运费 (1,200.00/m³):</span>
+            <span id="basePriceDisplay" class="click-to-copy" onclick="copyText('basePriceDisplay')">0.00</span>
+        </div>
+        <div class="result-row" id="insuranceRow" style="display: none; color: #aaa;">
+            <span>保险费用 (<span id="insRateDisplay">0.00%</span>):</span>
+            <span id="insurancePriceDisplay" class="click-to-copy" onclick="copyText('insurancePriceDisplay')">0.00</span>
+        </div>
+        <div class="result-row total-row">
+            <span>奖励 (Reward):</span>
+            <span id="totalPriceDisplay" class="click-to-copy" onclick="copyText('totalPriceDisplay')">0.00</span>
+        </div>
+        <!-- 输入结束后出现的复制提示 -->
+        <div id="copyHint" class="copy-hint-inline" onclick="copyText('totalPriceDisplay')">
+            👆 点击数字即可复制奖励金额
+        </div>
+    </div>
+
+    <div class="tips">
+        💡 提示：建议将合同时间设置为 <strong>28天</strong> 以确保安全送达。<br>
+        💡 只有当物品价值较高时，才建议填写保证金。<br>
+        💡 点击任意金额数字即可一键复制。
+    </div>
+
+    <!-- 复制公司名 -->
+    <div class="company-copy" onclick="copyTextFromStr('Mandatory Collateral')">
+        <div class="company-name">Mandatory Collateral</div>
+        <div class="copy-hint">点击复制快递公司名字</div>
+    </div>
+</div>
+
+<script>
+    const BASE_RATE = 1200;
+    const MAX_VOL_UP = 62500;
+    const MAX_VOL_DOWN = 375000;
+
+    function formatNumber(num) {
+        if (num === null || num === undefined || isNaN(num)) return '0.00';
+        return Number(num).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function parseNumber(str) {
+        if (!str) return 0;
+        const cleaned = String(str).replace(/,/g, '');
+        const n = parseFloat(cleaned);
+        return isNaN(n) ? 0 : n;
+    }
+
+    function formatInputValue(str) {
+        if (!str) return '';
+        const cleaned = String(str).replace(/,/g, '');
+        if (!/^\d*\.?\d*$/.test(cleaned)) return str;
+        if (cleaned === '' || cleaned === '.') return cleaned;
+        const num = parseFloat(cleaned);
+        if (isNaN(num)) return '';
+        return formatNumber(num);
+    }
+
+    function toggleCollateral() {
+        const isChecked = document.getElementById('collateralCheck').checked;
+        const inputGroup = document.getElementById('collateralInputGroup');
+        inputGroup.style.display = isChecked ? 'block' : 'none';
+        
+        if (!isChecked) {
+            document.getElementById('collateralValue').value = '';
+        }
+        calculate();
+    }
+
+    function calculate() {
+        const routeType = document.getElementById('routeSelect').value;
+        const volume = parseNumber(document.getElementById('volumeInput').value);
+        const hasCollateral = document.getElementById('collateralCheck').checked;
+        const collateralAmount = parseNumber(document.getElementById('collateralValue').value);
+
+        const volWarning = document.getElementById('volWarning');
+        let isOverLimit = false;
+
+        if (routeType === 'up') {
+            if (volume > MAX_VOL_UP) isOverLimit = true;
+        } else if (routeType === 'down' || routeType === 'down_deep') {
+            if (volume > MAX_VOL_DOWN) isOverLimit = true;
+        }
+        volWarning.style.display = isOverLimit ? 'block' : 'none';
+
+        const basePrice = volume * BASE_RATE;
+
+        let insuranceRate = 0;
+        let insurancePrice = 0;
+
+        if (hasCollateral && collateralAmount > 0) {
+            if (routeType === 'up') {
+                insuranceRate = 0.01;
+            } else if (routeType === 'down' || routeType === 'down_deep') {
+                insuranceRate = 0.005;
+            }
+            
+            insurancePrice = collateralAmount * insuranceRate;
+            
+            document.getElementById('insuranceRow').style.display = 'flex';
+            document.getElementById('insRateDisplay').innerText = (insuranceRate * 100).toFixed(2) + '%';
+            document.getElementById('insurancePriceDisplay').innerText = formatNumber(insurancePrice);
+        } else {
+            document.getElementById('insuranceRow').style.display = 'none';
+        }
+
+        const total = basePrice + insurancePrice;
+
+        document.getElementById('basePriceDisplay').innerText = formatNumber(basePrice);
+        document.getElementById('totalPriceDisplay').innerText = formatNumber(total);
+    }
+
+    function copyText(elementId) {
+        const text = document.getElementById(elementId).innerText;
+        copyTextFromStr(text);
+    }
+
+    function copyTextFromStr(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('toastMsg');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 1500);
+        }).catch(() => {
+            alert('复制失败，请手动复制');
+        });
+    }
+
+    function bindInputFormatter(id) {
+        const el = document.getElementById(id);
+        let composing = false;
+        let blurTimer = null;
+
+        el.addEventListener('compositionstart', () => { composing = true; });
+        el.addEventListener('compositionend', () => {
+            composing = false;
+            calculate();
+        });
+
+        el.addEventListener('input', () => {
+            if (composing) return;
+            const raw = el.value.replace(/[^0-9.]/g, '');
+            if (raw !== el.value) {
+                el.value = raw;
+            }
+            // 输入时隐藏提示
+            document.getElementById('copyHint').classList.remove('show');
+            calculate();
+        });
+
+        el.addEventListener('blur', () => {
+            el.value = formatInputValue(el.value);
+            // 失焦后延迟显示复制提示，给用户一个"输入结束"的反馈
+            clearTimeout(blurTimer);
+            blurTimer = setTimeout(() => {
+                const totalText = document.getElementById('totalPriceDisplay').innerText;
+                if (totalText !== '0.00') {
+                    document.getElementById('copyHint').classList.add('show');
+                }
+            }, 300);
+        });
+
+        el.addEventListener('focus', () => {
+            // 重新聚焦输入时隐藏提示
+            document.getElementById('copyHint').classList.remove('show');
+            clearTimeout(blurTimer);
+        });
+    }
+
+    window.onload = function() {
+        bindInputFormatter('volumeInput');
+        bindInputFormatter('collateralValue');
+        calculate();
+    }
+</script>
+</body>
+</html>

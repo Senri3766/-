@@ -205,22 +205,19 @@
 <div id="toastMsg">已复制到剪贴板！</div>
 
 <div class="container">
-    <h1>合同创建 (快递)</h1>
+    <h1>Boss快递合同计价</h1>
 
     <!-- 警示与规则 -->
     <div class="warning-box">
         <p><span class="text-danger">⚠ 体积限制警告：</span></p>
-        <p>上行 (00 -> 吉他) 最大：<span class="text-info">62,500.00 m³</span></p>
-        <p>下行 (吉他 -> 00) 最大：<span class="text-info">375,000.00 m³</span></p>
+        <p>上行最大：<span class="text-info">62,500.00 m³</span></p>
+        <p>下行最大：<span class="text-info">375,000.00 m³</span></p>
         <p style="margin-top:5px; border-top:1px solid #444; padding-top:5px;">
             单价：<span class="text-info">1,200.00 ISK/m³</span> | 
-            保险金：上行 1.00% / 下行 0.50%
-        </p>
-        <p style="margin-top:8px; border-top:1px solid #444; padding-top:8px;">
-            <span class="text-danger">⚠ 严禁在合同中加入集装箱！</span><br>
-            <span style="color:#ccc; font-size:0.85rem;">
+            保险：上行 1.00% / 下行 0.50%
+        <span class="text-danger">⚠ 严禁在合同中加入集装箱！</span><br>
+        <span style="color:#ccc; font-size:0.85rem;">
                 集装箱会导致无法正常递送，造成快递丢失，后果自负！
-            </span>
         </p>
     </div>
 
@@ -228,16 +225,15 @@
     <div class="form-group">
         <label for="routeSelect">选择路线</label>
         <select id="routeSelect" onchange="calculate()">
-            <option value="" disabled>-- 请选择运输路线 --</option>
             <optgroup label="上行">
                 <option value="up">4F9Y-3 >> 吉他 IV - 卫星 4 - 加达里海军 组装车间* </option>
                 <option value="up">MTO2-2 >> 吉他 IV - 卫星 4 - 加达里海军 组装车间* </option>
                 <option value="up">PF-QHK >> 吉他 IV - 卫星 4 - 加达里海军 组装车间* </option>
             </optgroup>
             <optgroup label="下行">
-                <option value="down" selected>吉他 >> 4F9Y-3</option>
-                <option value="down">吉他 >> MTO2-2</option>
-                <option value="down">吉他 >> PF-QHK</option>
+                <option value="down" selected>吉他 IV - 卫星 4 - 加达里海军 组装车间* >> 4F9Y-3</option>
+                <option value="down">吉他 IV - 卫星 4 - 加达里海军 组装车间*  >> MTO2-2</option>
+                <option value="down">吉他 IV - 卫星 4 - 加达里海军 组装车间*  >> PF-QHK</option>
             </optgroup>
             <optgroup label="00">
                 <option value="down_deep">MTO2-2 >> 4F9Y-3</option>
@@ -265,8 +261,6 @@
         <div id="collateralInputGroup" style="display: none;">
             <label for="collateralValue">保证金金额 (ISK)</label>
             <input type="text" id="collateralValue" placeholder="填写物品当前市场价值" inputmode="decimal" autocomplete="off">
-            <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                * 建议填写物品当前市场价值
             </div>
         </div>
     </div>

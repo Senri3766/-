@@ -47,16 +47,18 @@
             padding-bottom: 10px;
         }
 
-        .warning-box {
-            background-color: rgba(217, 83, 79, 0.1);
+        .notice-box {
+            background-color: rgba(217, 83, 79, 0.08);
             border-left: 4px solid var(--danger);
-            padding: 10px;
+            padding: 12px 14px;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
+            line-height: 1.7;
         }
-        .warning-box p { margin: 5px 0; }
+        .notice-box p { margin: 3px 0; }
         .text-danger { color: var(--danger); font-weight: bold; }
         .text-info { color: #5bc0de; }
+        .divider { border-top: 1px solid #444; margin: 7px 0; }
 
         .form-group { margin-bottom: 15px; }
 
@@ -67,6 +69,7 @@
             color: #aaa;
             font-size: 0.9rem;
         }
+
 
         select, input[type="text"] {
             width: 100%;
@@ -146,29 +149,17 @@
             cursor: pointer;
             user-select: none;
         }
-        .copy-hint-inline.show {
-            opacity: 1;
-        }
-        .copy-hint-inline:hover {
-            text-decoration: underline;
-        }
-
-        .tips {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            color: #888;
-            font-style: italic;
-        }
+        .copy-hint-inline.show { opacity: 1; }
+        .copy-hint-inline:hover { text-decoration: underline; }
 
         .company-copy {
-            margin-top: 30px;
+            margin-top: 25px;
             text-align: center;
             padding: 15px;
             background: #333;
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
-            position: relative;
         }
         .company-copy:hover { background: #444; }
         .company-name {
@@ -203,71 +194,63 @@
 <div id="toastMsg">已复制到剪贴板！</div>
 
 <div class="container">
-    <h1>合同创建 (快递)</h1>
+    <h1>Boss快递合同计算器</h1>
 
-    <div class="warning-box">
-        <p><span class="text-danger">⚠ 体积限制警告：</span></p>
-        <p>上行 (00 -> 吉他) 最大：<span class="text-info">62,500.00 m³</span></p>
-        <p>下行 (吉他 -> 00) 最大：<span class="text-info">375,000.00 m³</span></p>
-        <p style="margin-top:5px; border-top:1px solid #444; padding-top:5px;">
-            单价：<span class="text-info">1,200.00 ISK/m³</span> | 
-            保险金：上行 1.00% / 下行 0.50%
-        </p>
-        <p style="margin-top:8px; border-top:1px solid #444; padding-top:8px;">
-            <span class="text-danger">⚠ 严禁在合同中加入集装箱！</span><br>
-            <span style="color:#ccc; font-size:0.85rem;">
-                集装箱会导致无法正常递送，造成快递丢失，后果自负！
-            </span>
-        </p>
+    <div class="notice-box">
+        <p><span class="text-danger">严禁在合同中加入集装箱</span> </p>
+        <p>建议合同时间设为 <span class="text-info">28 天</span>，确保送达。</p>
+        <div class="divider"></div>
+        <p>单价 <span class="text-info">1,200.00 ISK/m3</span> | 保险金：上行 1.00% / 下行 0.50%</p>
+        <p>体积上限：上行 <span class="text-info">62,500 m3</span> / 下行 <span class="text-info">375,000 m3</span></p>
     </div>
 
     <div class="form-group">
-        <label for="routeSelect">选择路线 (目的地)</label>
+        <label for="routeSelect">选择路线</label>
         <select id="routeSelect" onchange="calculate()">
-            <option value="" disabled>-- 请选择运输路线 --</option>
-            <optgroup label="上行 (00 -> 吉他)">
-                <option value="up">4F9Y-3 -> 吉他</option>
-                <option value="up">MTO2-2 -> 吉他</option>
-                <option value="up">PF-QHK -> 吉他</option>
-            </optgroup>
-            <optgroup label="下行 (吉他 -> 00)">
-                <option value="down" selected>吉他 -> 4F9Y-3</option>
-                <option value="down">吉他 -> MTO2-2</option>
-                <option value="down">吉他 -> PF-QHK</option>
-            </optgroup>
-            <optgroup label="深空 (00 -> 00)">
-                <option value="down_deep">MTO2-2 -> 4F9Y-3</option>
-                <option value="down_deep">PF-QHK -> MTO2-2</option>
-            </optgroup>
-        </select>
+                <option value="" disabled>-- 请选择运输路线 --</option>
+                <optgroup label="上行">
+                    <option value="up">4F9Y-3 >> 吉他</option>
+                    <option value="up">MTO2-2 >> 吉他</option>
+                    <option value="up">PF-QHK >> 吉他</option>
+                </optgroup>
+                <optgroup label="下行">
+                    <option value="down" selected>吉他 >> 4F9Y-3</option>
+                    <option value="down">吉他 >> MTO2-2</option>
+                    <option value="down">吉他 >> PF-QHK</option>
+                </optgroup>
+                <optgroup label="00">
+                    <option value="down_deep">MTO2-2 >> 4F9Y-3</option>
+                    <option value="down_deep">PF-QHK >> MTO2-2</option>
+                </optgroup>
+            </select>
     </div>
 
     <div class="form-group">
-        <label for="volumeInput">货物体积 (m³)</label>
+        <label for="volumeInput">货物体积 (m3)</label>
         <input type="text" id="volumeInput" placeholder="请输入总体积..." inputmode="decimal" autocomplete="off">
         <div id="volWarning" style="color: var(--danger); font-size: 0.8rem; margin-top: 5px; display: none;">
-            ⚠ 警告：超出该方向最大运载限制！
+            警告：超出该方向最大运载限制！
         </div>
     </div>
 
     <div class="collateral-section">
         <label class="checkbox-wrapper">
             <input type="checkbox" id="collateralCheck" onchange="toggleCollateral()">
-            <span>添加保证金 (Collateral)</span>
+            <span>添加保证金</span>
         </label>
         
         <div id="collateralInputGroup" style="display: none;">
             <label for="collateralValue">保证金金额 (ISK)</label>
             <input type="text" id="collateralValue" placeholder="填写物品当前市场价值" inputmode="decimal" autocomplete="off">
             <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                * 建议填写物品当前市场价值
+                * 仅在物品价值较高时建议填写
             </div>
         </div>
     </div>
 
     <div class="result-panel">
         <div class="result-row">
-            <span>基础运费 (1,200.00/m³):</span>
+            <span>基础运费 (1,200.00/m3):</span>
             <span id="basePriceDisplay" class="click-to-copy" onclick="copyText('basePriceDisplay')">0.00</span>
         </div>
         <div class="result-row" id="insuranceRow" style="display: none; color: #aaa;">
@@ -275,18 +258,12 @@
             <span id="insurancePriceDisplay" class="click-to-copy" onclick="copyText('insurancePriceDisplay')">0.00</span>
         </div>
         <div class="result-row total-row">
-            <span>奖励 (Reward):</span>
+            <span>奖励:</span>
             <span id="totalPriceDisplay" class="click-to-copy" onclick="copyText('totalPriceDisplay')">0.00</span>
         </div>
         <div id="copyHint" class="copy-hint-inline" onclick="copyText('totalPriceDisplay')">
-            👆 点击数字即可复制奖励金额
+            点击数字即可复制奖励金额
         </div>
-    </div>
-
-    <div class="tips">
-        💡 提示：建议将合同时间设置为 <strong>28天</strong> 以确保安全送达。<br>
-        💡 只有当物品价值较高时，才建议填写保证金。<br>
-        💡 点击任意金额数字即可一键复制。
     </div>
 
     <div class="company-copy" onclick="copyTextFromStr('Mandatory Collateral')">
@@ -329,7 +306,6 @@
         const isChecked = document.getElementById('collateralCheck').checked;
         const inputGroup = document.getElementById('collateralInputGroup');
         inputGroup.style.display = isChecked ? 'block' : 'none';
-        
         if (!isChecked) {
             document.getElementById('collateralValue').value = '';
         }
@@ -337,10 +313,12 @@
     }
 
     function calculate() {
-        const routeType = document.getElementById('routeSelect').value;
+        const routeSelect = document.getElementById('routeSelect');
+        const routeType = routeSelect.value;
         const volume = parseNumber(document.getElementById('volumeInput').value);
         const hasCollateral = document.getElementById('collateralCheck').checked;
         const collateralAmount = parseNumber(document.getElementById('collateralValue').value);
+
 
         const volWarning = document.getElementById('volWarning');
         let isOverLimit = false;
@@ -363,9 +341,7 @@
             } else if (routeType === 'down' || routeType === 'down_deep') {
                 insuranceRate = 0.005;
             }
-            
             insurancePrice = collateralAmount * insuranceRate;
-            
             document.getElementById('insuranceRow').style.display = 'flex';
             document.getElementById('insRateDisplay').innerText = (insuranceRate * 100).toFixed(2) + '%';
             document.getElementById('insurancePriceDisplay').innerText = formatNumber(insurancePrice);
@@ -374,10 +350,10 @@
         }
 
         const total = basePrice + insurancePrice;
-
         document.getElementById('basePriceDisplay').innerText = formatNumber(basePrice);
         document.getElementById('totalPriceDisplay').innerText = formatNumber(total);
     }
+
 
     function copyText(elementId) {
         const text = document.getElementById(elementId).innerText;
@@ -388,9 +364,7 @@
         navigator.clipboard.writeText(text).then(() => {
             const toast = document.getElementById('toastMsg');
             toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 1500);
+            setTimeout(() => { toast.style.display = 'none'; }, 1500);
         }).catch(() => {
             alert('复制失败，请手动复制');
         });
@@ -410,9 +384,7 @@
         el.addEventListener('input', () => {
             if (composing) return;
             const raw = el.value.replace(/[^0-9.]/g, '');
-            if (raw !== el.value) {
-                el.value = raw;
-            }
+            if (raw !== el.value) el.value = raw;
             document.getElementById('copyHint').classList.remove('show');
             calculate();
         });

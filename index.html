@@ -226,22 +226,22 @@
 
     <!-- 路线选择 -->
     <div class="form-group">
-        <label for="routeSelect">选择路线 (目的地)</label>
+        <label for="routeSelect">选择路线</label>
         <select id="routeSelect" onchange="calculate()">
             <option value="" disabled>-- 请选择运输路线 --</option>
-            <optgroup label="上行 (00 -> 吉他)">
-                <option value="up">4F9Y-3 -> 吉他</option>
-                <option value="up">MTO2-2 -> 吉他</option>
-                <option value="up">PF-QHK -> 吉他</option>
+            <optgroup label="上行">
+                <option value="up">4F9Y-3 >> 吉他 IV - 卫星 4 - 加达里海军 组装车间* </option>
+                <option value="up">MTO2-2 >> 吉他 IV - 卫星 4 - 加达里海军 组装车间* </option>
+                <option value="up">PF-QHK >> 吉他 IV - 卫星 4 - 加达里海军 组装车间* </option>
             </optgroup>
-            <optgroup label="下行 (吉他 -> 00)">
-                <option value="down" selected>吉他 -> 4F9Y-3</option>
-                <option value="down">吉他 -> MTO2-2</option>
-                <option value="down">吉他 -> PF-QHK</option>
+            <optgroup label="下行">
+                <option value="down" selected>吉他 >> 4F9Y-3</option>
+                <option value="down">吉他 >> MTO2-2</option>
+                <option value="down">吉他 >> PF-QHK</option>
             </optgroup>
-            <optgroup label="深空 (00 -> 00)">
-                <option value="down_deep">MTO2-2 -> 4F9Y-3</option>
-                <option value="down_deep">PF-QHK -> MTO2-2</option>
+            <optgroup label="00">
+                <option value="down_deep">MTO2-2 >> 4F9Y-3</option>
+                <option value="down_deep">PF-QHK >> MTO2-2</option>
             </optgroup>
         </select>
     </div>
@@ -259,7 +259,7 @@
     <div class="collateral-section">
         <label class="checkbox-wrapper">
             <input type="checkbox" id="collateralCheck" onchange="toggleCollateral()">
-            <span>添加保证金 (Collateral)</span>
+            <span>添加保证金</span>
         </label>
         
         <div id="collateralInputGroup" style="display: none;">
@@ -282,7 +282,7 @@
             <span id="insurancePriceDisplay" class="click-to-copy" onclick="copyText('insurancePriceDisplay')">0.00</span>
         </div>
         <div class="result-row total-row">
-            <span>奖励 (Reward):</span>
+            <span>奖励:</span>
             <span id="totalPriceDisplay" class="click-to-copy" onclick="copyText('totalPriceDisplay')">0.00</span>
         </div>
         <!-- 输入结束后出现的复制提示 -->
